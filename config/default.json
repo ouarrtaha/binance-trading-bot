@@ -76,6 +76,10 @@
           "maxLossPercentage": 0.8,
           "disableBuyMinutes": 360,
           "orderType": "market"
+        },
+        "lossRecovery": {
+          "enabled": true,
+          "multiplier": 0
         }
       },
       "system": {

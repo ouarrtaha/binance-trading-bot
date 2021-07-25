@@ -34,12 +34,34 @@ const execute = async (logger, rawData) => {
         maxPurchaseAmount,
         stopPercentage,
         limitPercentage
+      },
+      sell: {
+        triggerPercentage: sellTriggerPercentage,
+        limitPercentage: sellLimitPercentage,
+        stopLoss: { maxLossPercentage: sellMaxLossPercentage },
+        lossRecovery: {
+          multiplier: lossRecoveryMultiplier,
+          enabled: lossRecoveryEnabled
+        }
       }
     },
     action,
     quoteAssetBalance: { free: quoteAssetFreeBalance },
     buy: { currentPrice, openOrders }
   } = data;
+
+  // Calculate loss recovery factor
+  let lossRecoveryFactor = 1;
+  if (lossRecoveryEnabled) {
+    const minProfitPercent = sellTriggerPercentage - (1 - sellLimitPercentage);
+    lossRecoveryFactor = _.floor(
+      (1 - sellMaxLossPercentage) / (minProfitPercent - 1),
+      2
+    );
+  }
+
+  const purchaseAmount =
+    maxPurchaseAmount * lossRecoveryFactor ** lossRecoveryMultiplier;
 
   if (isLocked) {
     logger.info(
@@ -61,7 +83,7 @@ const execute = async (logger, rawData) => {
     return data;
   }
 
-  if (maxPurchaseAmount <= 0) {
+  if (purchaseAmount <= 0) {
     data.buy.processMessage =
       'Max purchase amount must be configured. Please configure symbol settings.';
     data.buy.updatedAt = moment().utc();
@@ -81,8 +103,8 @@ const execute = async (logger, rawData) => {
   let freeBalance = parseFloat(_.floor(quoteAssetFreeBalance, pricePrecision));
 
   logger.info({ freeBalance }, 'Free balance');
-  if (freeBalance > maxPurchaseAmount) {
-    freeBalance = maxPurchaseAmount;
+  if (freeBalance > purchaseAmount) {
+    freeBalance = purchaseAmount;
     logger.info({ freeBalance }, 'Free balance after adjust');
   }
 

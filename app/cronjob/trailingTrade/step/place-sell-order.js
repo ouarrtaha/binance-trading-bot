@@ -1,5 +1,9 @@
 const _ = require('lodash');
 const moment = require('moment');
+const {
+  saveSymbolConfiguration,
+  getSymbolConfiguration
+} = require('../../trailingTradeHelper/configuration');
 const { binance, cache, slack } = require('../../../helpers');
 const { roundDown } = require('../../trailingTradeHelper/util');
 const {
@@ -152,6 +156,18 @@ const execute = async (logger, rawData) => {
   );
   data.sell.processMessage = `Placed new stop loss limit order for selling.`;
   data.sell.updatedAt = moment().utc();
+
+  const symbolConfiguration = await getSymbolConfiguration(logger, symbol);
+  await saveSymbolConfiguration(logger, symbol, {
+    ...symbolConfiguration,
+    sell: {
+      ...data.symbolConfiguration.sell,
+      lossRecovery: {
+        ...data.symbolConfiguration.sell.lossRecovery,
+        multiplier: 0
+      }
+    }
+  });
 
   return data;
 };
