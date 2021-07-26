@@ -1011,6 +1011,46 @@ class SettingIcon extends React.Component {
                                         </Form.Check>
                                       </Form.Group>
                                     </div>
+                                    <div className='col-12'>
+                                      <Form.Group
+                                        controlId='field-loss-recovery-enabled'
+                                        className='mb-2'>
+                                        <Form.Check size='sm'>
+                                          <Form.Check.Input
+                                            type='checkbox'
+                                            data-state-key='sell.lossRecovery.enabled'
+                                            checked={
+                                              configuration.sell.lossRecovery
+                                                .enabled
+                                            }
+                                            onChange={this.handleInputChange}
+                                          />
+                                          <Form.Check.Label>
+                                            Loss recovery Enabled{' '}
+                                            <OverlayTrigger
+                                              trigger='click'
+                                              key='sell-loss-recovery-enabled-overlay'
+                                              placement='bottom'
+                                              overlay={
+                                                <Popover id='sell-loss-recovery-enabled-overlay-right'>
+                                                  <Popover.Content>
+                                                    If enabled, the bot will try
+                                                    to recover the last loss by
+                                                    calculating a new purchase
+                                                    amount.
+                                                  </Popover.Content>
+                                                </Popover>
+                                              }>
+                                              <Button
+                                                variant='link'
+                                                className='p-0 m-0 ml-1 text-info'>
+                                                <i className='fa fa-question-circle'></i>
+                                              </Button>
+                                            </OverlayTrigger>
+                                          </Form.Check.Label>
+                                        </Form.Check>
+                                      </Form.Group>
+                                    </div>
                                     <div className='col-xs-12 col-sm-6'>
                                       <Form.Group
                                         controlId='field-sell-stop-loss-max-loss-percentage'

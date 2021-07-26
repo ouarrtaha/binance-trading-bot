@@ -94,6 +94,32 @@ class SymbolSettingIcon extends React.Component {
   render() {
     const { symbolInfo } = this.props;
     const { symbolConfiguration } = this.state;
+    const { sell, buy } = symbolConfiguration;
+    const { maxPurchaseAmount } = buy || {};
+    const {
+      triggerPercentage: sellTriggerPercentage,
+      limitPercentage: sellLimitPercentage,
+      stopLoss,
+      lossRecovery
+    } = sell || {};
+    const { maxLossPercentage: sellMaxLossPercentage } = stopLoss || {};
+    const { multiplier: lossRecoveryMultiplier, enabled: lossRecoveryEnabled } =
+      lossRecovery || {};
+
+    let lossRecoveryFactor = 1;
+    if (lossRecoveryEnabled) {
+      const minProfitPercent =
+        sellTriggerPercentage - (1 - sellLimitPercentage);
+      lossRecoveryFactor = _.floor(
+        (1 - sellMaxLossPercentage) / (minProfitPercent - 1),
+        2
+      );
+    }
+
+    const purchaseAmount = _.floor(
+      maxPurchaseAmount * lossRecoveryFactor ** lossRecoveryMultiplier,
+      2
+    );
 
     if (_.isEmpty(symbolConfiguration)) {
       return '';
@@ -945,6 +971,97 @@ class SymbolSettingIcon extends React.Component {
                                         </Form.Check>
                                       </Form.Group>
                                     </div>
+                                    <div className='col-12'>
+                                      <Form.Group
+                                        controlId='field-loss-recovery-enabled'
+                                        className='mb-2'>
+                                        <Form.Check size='sm'>
+                                          <Form.Check.Input
+                                            type='checkbox'
+                                            data-state-key='sell.lossRecovery.enabled'
+                                            checked={
+                                              symbolConfiguration.sell
+                                                .lossRecovery.enabled
+                                            }
+                                            onChange={this.handleInputChange}
+                                          />
+                                          <Form.Check.Label>
+                                            Loss recovery Enabled.{' '}
+                                            <OverlayTrigger
+                                              trigger='click'
+                                              key='sell-loss-recovery-enabled-overlay'
+                                              placement='bottom'
+                                              overlay={
+                                                <Popover id='sell-loss-recovery-enabled-overlay-right'>
+                                                  <Popover.Content>
+                                                    If enabled, the bot will try
+                                                    try to recover the last loss
+                                                    by multiplying the next buy
+                                                    amount to a calculated
+                                                    factor.
+                                                  </Popover.Content>
+                                                </Popover>
+                                              }>
+                                              <Button
+                                                variant='link'
+                                                className='p-0 m-0 ml-1 text-info'>
+                                                <i className='fa fa-question-circle'></i>
+                                              </Button>
+                                            </OverlayTrigger>
+                                          </Form.Check.Label>
+                                        </Form.Check>
+                                      </Form.Group>
+                                    </div>
+
+                                    <div className='col-xs-12 col-sm-12 mb-2'>
+                                      Factor: {lossRecoveryFactor}
+                                    </div>
+
+                                    <div className='col-xs-12 col-sm-12 mb-2'>
+                                      Next purchase amount: {purchaseAmount}
+                                    </div>
+
+                                    <div className='col-xs-12 col-sm-12'>
+                                      <Form.Group
+                                        controlId='field-ath-candles-limit'
+                                        className='mb-2'>
+                                        <Form.Label className='mb-0'>
+                                          Power:
+                                          <OverlayTrigger
+                                            trigger='click'
+                                            key='sell-loss-recovery-multiplier'
+                                            placement='bottom'
+                                            overlay={
+                                              <Popover id='sell-loss-recovery-multiplier-overlay-right'>
+                                                <Popover.Content>
+                                                  How much consecutive losses
+                                                  you need to recover. (it's
+                                                  increased automatically after
+                                                  each loss)
+                                                </Popover.Content>
+                                              </Popover>
+                                            }>
+                                            <Button
+                                              variant='link'
+                                              className='p-0 m-0 ml-1 text-info'>
+                                              <i className='fa fa-question-circle'></i>
+                                            </Button>
+                                          </OverlayTrigger>
+                                        </Form.Label>
+                                        <Form.Control
+                                          size='sm'
+                                          type='number'
+                                          placeholder='Enter number'
+                                          required
+                                          min='0'
+                                          step='1'
+                                          data-state-key='sell.lossRecovery.multiplier'
+                                          value={lossRecoveryMultiplier}
+                                          onChange={this.handleInputChange}
+                                        />
+                                      </Form.Group>
+                                    </div>
+
                                     <div className='col-xs-12 col-sm-6'>
                                       <Form.Group
                                         controlId='field-sell-stop-loss-max-loss-percentage'
