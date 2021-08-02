@@ -3,7 +3,7 @@ const { cache } = require('../../../helpers');
 const {
   getGlobalConfiguration,
   saveGlobalConfiguration,
-  deleteAllSymbolConfiguration
+  deleteAllSymbolsConfigurationsAndKeepMultiplier
 } = require('../../../cronjob/trailingTradeHelper/configuration');
 
 const handleSettingUpdate = async (logger, ws, payload) => {
@@ -41,7 +41,7 @@ const handleSettingUpdate = async (logger, ws, payload) => {
 
   if (action === 'apply-to-all') {
     // In this case delete all symbol configuration
-    await deleteAllSymbolConfiguration(logger);
+    await deleteAllSymbolsConfigurationsAndKeepMultiplier(logger);
   }
 
   ws.send(
