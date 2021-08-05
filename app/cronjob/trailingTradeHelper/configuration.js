@@ -117,29 +117,6 @@ const saveSymbolConfiguration = async (
   );
 };
 
-const deleteAllSymbolsConfigurationsAndKeepMultiplier = async logger => {
-  const globalConfig = await getGlobalConfiguration(logger);
-  const { sell, ...restConfig } = globalConfig;
-  const { lossRecovery, ...restSell } = sell;
-  // eslint-disable-next-line no-unused-vars
-  const { multiplier, ...restLossRecovery } = lossRecovery;
-
-  const fieldsToDelete = Object.keys(restConfig);
-  fieldsToDelete.push(...Object.keys(restSell).map(field => `sell.${field}`));
-  fieldsToDelete.push(
-    ...Object.keys(restLossRecovery).map(field => `sell.lossRecovery.${field}`)
-  );
-
-  return mongo.deleteFields(
-    logger,
-    'trailing-trade-symbols',
-    {
-      key: { $regex: /^(.+)-configuration/ }
-    },
-    fieldsToDelete
-  );
-};
-
 const deleteAllSymbolConfiguration = async logger =>
   mongo.deleteAll(logger, 'trailing-trade-symbols', {
     key: { $regex: /^(.+)-configuration/ }
@@ -339,7 +316,6 @@ module.exports = {
   getSymbolConfiguration,
   saveGlobalConfiguration,
   saveSymbolConfiguration,
-  deleteAllSymbolsConfigurationsAndKeepMultiplier,
   deleteAllSymbolConfiguration,
   deleteSymbolConfiguration,
   getConfiguration

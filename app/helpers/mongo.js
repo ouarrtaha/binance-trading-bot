@@ -40,18 +40,6 @@ const findOne = async (funcLogger, collectionName, query) => {
   return result;
 };
 
-const findAll = async (funcLogger, collectionName, query) => {
-  const logger = funcLogger.child({ helper: 'mongo', funcName: 'findAll' });
-
-  const collection = database.collection(collectionName);
-
-  logger.info({ collectionName, query }, 'Finding documents from MongoDB');
-  const result = await collection.find(query).toArray();
-  logger.info({ result }, 'Found documents from MongoDB');
-
-  return result;
-};
-
 const insertOne = async (funcLogger, collectionName, document) => {
   const logger = funcLogger.child({ helper: 'mongo', funcName: 'insertOne' });
 
@@ -83,44 +71,6 @@ const upsertOne = async (funcLogger, collectionName, filter, document) => {
   return result;
 };
 
-const upsertAll = async (funcLogger, collectionName, filter, document) => {
-  const logger = funcLogger.child({ helper: 'mongo', funcName: 'upsertAll' });
-
-  const collection = database.collection(collectionName);
-
-  logger.info(
-    { collectionName, filter, document },
-    'Upserting documents to MongoDB'
-  );
-  const result = await collection.updateMany(
-    filter,
-    { $set: document },
-    { upsert: true }
-  );
-  logger.info({ result }, 'Upserted documents to MongoDB');
-
-  return result;
-};
-
-const deleteFields = async (
-  funcLogger,
-  collectionName,
-  filter,
-  fieldsToDelete
-) => {
-  const logger = funcLogger.child({
-    helper: 'mongo',
-    funcName: 'deleteFields'
-  });
-
-  logger.info({ collectionName, filter }, 'Deleting fields from MongoDB');
-  const collection = database.collection(collectionName);
-  const result = collection.updateMany(filter, { $unset: fieldsToDelete });
-  logger.info({ result }, 'Deleted fields from MongoDB');
-
-  return result;
-};
-
 const deleteAll = async (funcLogger, collectionName, filter) => {
   const logger = funcLogger.child({ helper: 'mongo', funcName: 'deleteAll' });
 
@@ -146,11 +96,8 @@ const deleteOne = async (funcLogger, collectionName, filter) => {
 module.exports = {
   connect,
   findOne,
-  findAll,
   insertOne,
-  upsertAll,
   upsertOne,
   deleteAll,
-  deleteFields,
   deleteOne
 };
