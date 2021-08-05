@@ -1,9 +1,5 @@
 const _ = require('lodash');
 const moment = require('moment');
-const {
-  saveSymbolConfiguration,
-  getSymbolConfiguration
-} = require('../../trailingTradeHelper/configuration');
 const { binance, slack } = require('../../../helpers');
 const {
   getAndCacheOpenOrdersForSymbol,
@@ -180,18 +176,6 @@ const execute = async (logger, rawData) => {
   );
   data.sell.processMessage = `Placed new market order for selling.`;
   data.sell.updatedAt = moment().utc();
-
-  const symbolConfiguration = await getSymbolConfiguration(logger, symbol);
-  await saveSymbolConfiguration(logger, symbol, {
-    ...symbolConfiguration,
-    sell: {
-      ...data.symbolConfiguration.sell,
-      lossRecovery: {
-        ...data.symbolConfiguration.sell.lossRecovery,
-        multiplier: data.symbolConfiguration.sell.lossRecovery.multiplier + 1
-      }
-    }
-  });
 
   return data;
 };
